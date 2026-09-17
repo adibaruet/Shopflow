@@ -322,18 +322,4 @@ psql shopflow -f db/schema.sql && psql shopflow -f db/seed.sql
    worry about that you didn't before? This is a real trade-off that real shops
    argue about, and Stage 5 will make the tension concrete.
 
----
 
-## What's next
-
-**Stage 3: Go talks to Postgres.** You'll connect the Stage 1 server to this
-database with `pgx`, and the payoff is the `Store` interface you already have:
-write a `PostgresStore` with the same five methods, change one line in
-`main.go`, delete `MemStore`, and the handlers never know anything happened.
-
-Along the way: connection pools and why one is not optional, `context` for
-timeouts and cancellation, scanning nullable columns without the code turning
-into soup, keeping the database password out of your source, and migrations, so
-`schema.sql` stops being a file you re-run by hand.
-
-Say **next** when you're ready.
