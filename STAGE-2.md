@@ -300,26 +300,5 @@ Reset when you're done:
 psql shopflow -f db/schema.sql && psql shopflow -f db/seed.sql
 ```
 
----
-
-## 6. Exercises
-
-1. Add a `discontinued_at TIMESTAMPTZ` to `products` and use it instead of
-   deleting rows. Which of the `ON DELETE` rules above stop mattering once you
-   soft-delete? Which still matter?
-2. Write a query listing every product that has **no variant in stock**, so the
-   storefront can grey them out in one pass instead of one query per product.
-3. Add a `coupons` table (code, percent or fixed amount, expiry, usage limit)
-   and a constraint that a coupon is *either* percentage *or* fixed, never both.
-   Hint: `CHECK (num_nonnulls(percent_off, amount_off_cents) = 1)`.
-4. Add `product_reviews` (user, product, 1-5 rating, body, created_at) with a
-   constraint that one customer may review a product once. Then write the query
-   that gets average rating and review count per product without making the
-   storefront listing slow.
-5. Harder: the current schema stores `stock` as a single mutable number. Model it
-   instead as an append-only `inventory_movements` table (+50 restock, -2 sale,
-   +1 return) where stock is a `sum()`. What do you gain? What do you now have to
-   worry about that you didn't before? This is a real trade-off that real shops
-   argue about, and Stage 5 will make the tension concrete.
 
 
