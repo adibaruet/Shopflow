@@ -17,12 +17,13 @@ import (
 
 	"shopflow/internal/catalog"
 	"shopflow/internal/httpx"
+	"shopflow/internal/lab"
 )
 
 func main() {
 	addr := os.Getenv("SHOPFLOW_ADDR")
 	if addr == "" {
-		addr = ":8080"
+		addr = "127.0.0.1:8080" // localhost only: the SQL Lab runs real SQL
 	}
 
 	// Build the store, fill it with sample products.
@@ -33,8 +34,18 @@ func main() {
 		log.Fatalf("seeding failed: %v", err)
 	}
 
+	// Connect to Postgres for the storefront views and the SQL Lab.
+	// If it is not running the server still starts, and the pages explain why.
+	db, err := lab.Open(context.Background())
+	if err != nil {
+		log.Printf("Postgres not connected (%v): the shop pages and SQL Lab are off", err)
+	} else {
+		defer db.Close()
+	}
+
 	// Mount the API, then the static site at the root.
 	mux := http.NewServeMux()
+	lab.Register(mux, db)
 	mux.Handle("/api/", catalog.Handler{Store: store}.Routes())
 	mux.Handle("/", http.FileServer(http.Dir("web")))
 
@@ -70,7 +81,7 @@ func main() {
 		close(shutdownDone)
 	}()
 
-	log.Printf("ShopFlow listening on http://localhost%s", addr)
+	log.Printf("ShopFlow listening on http://%s", addr)
 
 	// ListenAndServe blocks until the server stops. It returns ErrServerClosed
 	// on a clean shutdown, which is not a failure.

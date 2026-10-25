@@ -5,721 +5,267 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>ShopFlow</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-  :root {
-    --bg: #f7f7f5;
-    --surface: #ffffff;
-    --surface-soft: #f1f1ee;
-    --border: #e7e5e0;
-    --ink: #171717;
-    --muted: #737373;
-    --accent: #111111;
-    --accent-soft: #e9e9e5;
-    --danger: #c62828;
-    --success: #287a4b;
-    --radius: 16px;
-    --shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
-  }
-
-  * {
-    box-sizing: border-box;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    margin: 0;
-    font-family:
-      Inter, -apple-system, BlinkMacSystemFont,
-      "Segoe UI", system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-  }
-
-  button,
-  input,
-  select {
-    font: inherit;
-  }
-
-  /* ================= HEADER ================= */
-
-  header {
-    background: rgba(255, 255, 255, 0.92);
-    border-bottom: 1px solid var(--border);
-    position: sticky;
-    top: 0;
-    z-index: 20;
-    backdrop-filter: blur(14px);
-  }
-
-  .nav {
-    max-width: 1200px;
-    margin: auto;
-    padding: 18px 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-
-  .logo {
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: -0.04em;
-  }
-
-  .logo span {
-    color: #777;
-  }
-
-  .nav-right {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    font-size: 14px;
-    color: var(--muted);
-  }
-
-  .nav-right a {
-    color: inherit;
-    text-decoration: none;
-    transition: color 0.2s ease;
-  }
-
-  .nav-right a:hover {
-    color: var(--ink);
-  }
-
-  /* ================= HERO ================= */
-
-  .hero {
-    max-width: 1200px;
-    margin: auto;
-    padding: 70px 24px 45px;
-  }
-
-  .hero-inner {
-    background: #171717;
-    color: white;
-    border-radius: 24px;
-    padding: 52px;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .hero-inner::after {
-    content: "";
-    position: absolute;
-    width: 280px;
-    height: 280px;
-    border-radius: 50%;
-    right: -80px;
-    top: -100px;
-    background: rgba(255,255,255,0.07);
-  }
-
-  .hero-label {
-    display: inline-block;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #bdbdbd;
-    margin-bottom: 14px;
-  }
-
-  .hero h1 {
-    margin: 0;
-    max-width: 650px;
-    font-size: clamp(36px, 5vw, 62px);
-    line-height: 1.02;
-    letter-spacing: -0.055em;
-  }
-
-  .hero p {
-    margin: 20px 0 0;
-    max-width: 520px;
-    color: #bdbdbd;
-    font-size: 16px;
-    line-height: 1.7;
-  }
-
-  /* ================= CONTROLS ================= */
-
-  .controls-wrap {
-    max-width: 1200px;
-    margin: auto;
-    padding: 0 24px 25px;
-  }
-
-  .controls {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 12px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    box-shadow: var(--shadow);
-  }
-
-  .search-box {
-    position: relative;
-    flex: 1;
-  }
-
-  .search-box svg {
-    position: absolute;
-    left: 14px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #999;
-    pointer-events: none;
-  }
-
-  input[type="search"],
-  select {
-    width: 100%;
-    height: 46px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: var(--surface-soft);
-    color: var(--ink);
-    outline: none;
-    transition: all 0.2s ease;
-  }
-
-  input[type="search"] {
-    padding: 0 15px 0 43px;
-  }
-
-  select {
-    padding: 0 38px 0 14px;
-    cursor: pointer;
-  }
-
-  input[type="search"]:focus,
-  select:focus {
-    background: white;
-    border-color: #bdbdbd;
-  }
-
-  label.check {
-    height: 46px;
-    padding: 0 15px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    white-space: nowrap;
-    border-radius: 12px;
-    background: var(--surface-soft);
-    color: var(--muted);
-    font-size: 14px;
-    cursor: pointer;
-  }
-
-  label.check input {
-    accent-color: #111;
-  }
-
-  /* ================= MAIN ================= */
-
-  main {
-    max-width: 1200px;
-    margin: auto;
-    padding: 10px 24px 70px;
-  }
-
-  .top-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-  }
-
-  .section-title {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.03em;
-  }
-
-  .status {
-    color: var(--muted);
-    font-size: 14px;
-  }
-
-  /* ================= GRID ================= */
-
-  .grid {
-    display: grid;
-    gap: 22px;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  /* ================= CARD ================= */
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    transition:
-      transform 0.25s ease,
-      box-shadow 0.25s ease,
-      border-color 0.25s ease;
-  }
-
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 18px 40px rgba(0,0,0,0.09);
-    border-color: #d5d3ce;
-  }
-
-  .image-wrap {
-    overflow: hidden;
-    background: #eeeeeb;
-    position: relative;
-  }
-
-  .card img {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.45s ease;
-  }
-
-  .card:hover img {
-    transform: scale(1.045);
-  }
-
-  .body {
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    flex: 1;
-  }
-
-  .cat {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    color: #858585;
-    font-weight: 700;
-  }
-
-  .card h2 {
-    font-size: 16px;
-    margin: 0;
-    font-weight: 650;
-    letter-spacing: -0.02em;
-  }
-
-  .card p {
-    margin: 0;
-    color: var(--muted);
-    font-size: 13px;
-    line-height: 1.55;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-top: 10px;
-  }
-
-  .price {
-    font-size: 17px;
-    font-weight: 750;
-    letter-spacing: -0.02em;
-  }
-
-  .stock {
-    font-size: 11px;
-    color: var(--success);
-    background: #edf7f0;
-    padding: 5px 9px;
-    border-radius: 999px;
-    font-weight: 600;
-  }
-
-  .stock.out {
-    color: var(--danger);
-    background: #fff0f0;
-  }
-
-  /* ================= EMPTY / ERROR ================= */
-
-  .empty {
-    grid-column: 1 / -1;
-    padding: 80px 20px;
-    text-align: center;
-    color: var(--muted);
-    background: var(--surface);
-    border: 1px dashed var(--border);
-    border-radius: var(--radius);
-  }
-
-  .error {
-    grid-column: 1 / -1;
-    background: #fff3f3;
-    border: 1px solid #ffd1d1;
-    color: var(--danger);
-    padding: 18px;
-    border-radius: var(--radius);
-    font-size: 14px;
-  }
-
-  /* ================= RESPONSIVE ================= */
-
-  @media (max-width: 950px) {
-    .grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .hero-inner {
-      padding: 42px;
-    }
-  }
-
-  @media (max-width: 720px) {
-    .nav-right {
-      display: none;
-    }
-
-    .hero {
-      padding-top: 30px;
-    }
-
-    .hero-inner {
-      padding: 34px 28px;
-      border-radius: 20px;
-    }
-
-    .controls {
-      flex-direction: column;
-      align-items: stretch;
-    }
-
-    .grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-
-    main,
-    .controls-wrap,
-    .hero {
-      padding-left: 16px;
-      padding-right: 16px;
-    }
-
-    .hero h1 {
-      font-size: 38px;
-    }
-  }
+:root{--paper:#EDF0EA;--card:#F9FBF7;--ink:#11251F;--muted:#586A64;--line:#CAD3CB;--saffron:#F2B632;--leaf:#2F6B4F;--bad:#A8381F;--code:#E9F1EA;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
+h1{font-size:1.9rem;line-height:1.15;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
+h2{font-size:1rem;margin:0 0 8px;font-weight:600}
+p{margin:0 0 12px}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
+.muted,.hint{color:var(--muted)}
+header{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
+.top{max-width:1280px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+.logo{font-weight:800;font-size:1.4rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
+.logo svg{width:26px;height:26px}
+nav{display:flex;gap:4px;flex:1;flex-wrap:wrap}
+nav button{background:none;border:0;border-bottom:3px solid transparent;padding:8px 12px;font-weight:600;color:var(--muted)}
+nav button[aria-current=page]{color:var(--ink);border-bottom-color:var(--saffron)}
+.pill{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.pill:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--line)}
+.pill.ok:before{background:var(--leaf)}.pill.bad:before{background:var(--bad)}
+.wrap{max-width:1280px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
+.lab-mode .wrap{grid-template-columns:minmax(0,1fr)}
+.lab-mode #aside{display:none}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 18px}
+.bar input[type=search]{flex:1;min-width:180px;padding:9px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:99px;padding:6px 14px}
+.chip[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 10px 14px}
+.card:hover{border-color:var(--ink)}
+.pic{display:grid;place-items:center;height:150px;background:#E0E8DD;border-radius:8px;margin-bottom:8px}
+.pic img{max-width:70%;max-height:70%}
+.cname{font-weight:600;font-size:1.05rem}.ccat{font-size:.88rem;color:var(--muted)}
+.crow{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px}
+.stk{font-size:.85rem;color:var(--leaf)}.stk.low{color:#8A5A00}.stk.out{color:var(--bad)}
+.scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:.92rem}
+.tbl th{text-align:left;padding:9px 12px;border-bottom:2px solid var(--ink);white-space:nowrap}
+.tbl td{padding:8px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:0}
+.num{text-align:right;font-family:var(--mono);font-size:.88rem}
+.nul{color:var(--muted);font-family:var(--mono);font-size:.82rem;font-style:italic}
+.note{color:var(--muted);max-width:62ch;margin-top:14px}
+.total{text-align:right;margin-top:12px;font-size:1.15rem}
+.empty,.offline{padding:28px;border:1px dashed var(--line);border-radius:14px;background:var(--card)}
+.offline pre,.err pre{font-family:var(--mono);font-size:.85rem;white-space:pre-wrap;margin:8px 0 0}
+#aside .box{position:sticky;top:84px;background:var(--ink);color:var(--code);border-radius:16px;padding:18px}
+#aside h2{color:#fff}
+.sql{font:13px/1.55 var(--mono);white-space:pre-wrap;margin:0 0 12px;max-height:56vh;overflow:auto}
+.sql i{font-style:normal}.k{color:var(--saffron)}.s{color:#9BD6B0}.n{color:#F29B7B}.c{color:#7F9A90;font-style:italic}
+.meta{font-size:.85rem;color:#9FB5AB;margin:0 0 12px}
+.pri{background:var(--saffron);color:var(--ink);border:0;border-radius:10px;padding:9px 18px;font-weight:600}
+.ghost{background:none;border:1px solid var(--line);border-radius:10px;padding:8px 14px}
+.lab{display:grid;grid-template-columns:270px minmax(0,1fr);gap:24px;align-items:start}
+.side{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.side details{margin-bottom:4px}
+.side summary{cursor:pointer;font-family:var(--mono);font-size:.88rem;padding:2px 0}
+.side li.col{font:12px var(--mono);color:var(--muted);list-style:none;padding-left:14px}
+.side ul{margin:2px 0 6px;padding:0}
+.side ol{padding-left:20px;margin:0}
+.side ol button{background:none;border:0;text-align:left;padding:4px 0;font-size:.92rem;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+textarea#ed{width:100%;min-height:190px;background:var(--ink);color:var(--code);border:0;border-radius:12px;padding:14px;font:14px/1.55 var(--mono);resize:vertical}
+.ctl{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:12px 0}
+.hint{font-size:.85rem}
+.err{background:#F6E3DD;border:1px solid #DDA796;border-radius:12px;padding:12px 14px;margin-top:10px}
+.note2{background:#FBF1D4;border-radius:10px;padding:8px 12px;font-size:.92rem}
+dialog{border:0;border-radius:16px;padding:24px;max-width:680px;width:92vw;background:var(--paper);color:var(--ink)}
+dialog::backdrop{background:rgba(17,37,31,.5)}
+@media (max-width:1000px){.wrap,.lab{grid-template-columns:minmax(0,1fr)}#aside .box{position:static}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
-
 <body>
-
-<header>
-  <nav class="nav">
-    <div class="logo">Shop<span>Flow</span></div>
-
-    <div class="nav-right">
-      <a href="#">Products</a>
-      <a href="#">Categories</a>
-      <a href="#">About</a>
-    </div>
+<header><div class="top">
+  <div class="logo"><svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="16" rx="11" ry="14" fill="#F2B632" transform="rotate(25 16 16)"/><path d="M11 6c6 5-6 15 0 20" stroke="#11251F" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>ShopFlow</div>
+  <nav id="nav" aria-label="Pages">
+    <button data-tab="shop">Shop</button><button data-tab="cart">Cart</button><button data-tab="orders">Orders</button><button data-tab="reports">Reports</button><button data-tab="lab">SQL Lab</button>
   </nav>
-</header>
+  <span id="pill" class="pill" role="status">Checking database</span>
+</div></header>
 
-
-<section class="hero">
-  <div class="hero-inner">
-    <div class="hero-label">ShopFlow Collection</div>
-
-    <h1>
-      Simple products.<br>
-      Better shopping.
-    </h1>
-
-    <p>
-      Discover carefully selected products in one clean,
-      effortless shopping experience.
-    </p>
-  </div>
-</section>
-
-
-<div class="controls-wrap">
-  <div class="controls">
-
-    <div class="search-box">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-           stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="7"></circle>
-        <path d="m20 20-4-4"></path>
-      </svg>
-
-      <input
-        type="search"
-        id="q"
-        placeholder="Search products..."
-      >
-    </div>
-
-    <select id="category">
-      <option value="">All categories</option>
-    </select>
-
-    <label class="check">
-      <input type="checkbox" id="inStock">
-      In stock only
-    </label>
-
-  </div>
+<div class="wrap">
+  <main id="main"></main>
+  <aside id="aside" aria-label="SQL behind this page"><div class="box">
+    <h2>SQL behind this page</h2>
+    <pre id="sqltext" class="sql">Loading...</pre>
+    <p id="sqlmeta" class="meta"></p>
+    <button id="tolab" class="pri" type="button">Edit in SQL Lab</button>
+  </div></aside>
 </div>
 
-
-<main>
-
-  <div class="top-row">
-    <div class="section-title">All Products</div>
-    <div class="status" id="status">Loading...</div>
-  </div>
-
-  <div class="grid" id="grid"></div>
-
-</main>
-
+<dialog id="dlg"><div id="dlgbody"></div><p style="margin:16px 0 0"><button class="ghost" id="dlgclose" type="button">Close</button></p></dialog>
 
 <script>
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const money=c=>'$'+(Number(c)/100).toFixed(2);
+const KW='select|from|where|group by|order by|limit|offset|left join|join|on|and|or|not|as|in|ilike|like|having|insert into|values|update|set|delete from|returning|with|count|sum|min|max|coalesce|desc|asc|distinct|case|when|then|else|end|null|is|true|false|explain|analyze|between|exists';
+const RE=new RegExp("(--.*$)|('(?:[^']|'')*')|\\b(\\d+)\\b|\\b("+KW+")\\b","gim");
+const hl=s=>esc(s).replace(RE,(m,c,q,n,k)=>c?`<i class=c>${c}</i>`:q?`<i class=s>${q}</i>`:n?`<i class=n>${n}</i>`:`<i class=k>${k}</i>`);
 
-const els = {
-  q: document.getElementById('q'),
-  category: document.getElementById('category'),
-  inStock: document.getElementById('inStock'),
-  grid: document.getElementById('grid'),
-  status: document.getElementById('status'),
-};
+const S={tab:'shop',cat:'',q:'',stock:false,report:'low-stock',lab:'SELECT name, slug\nFROM products;',cats:null};
 
+async function api(url,opts){
+  const r=await fetch(url,opts);const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(j.error&&j.error.message||'Request failed');return j;
+}
+function pill(ok){const p=$('#pill');p.className='pill '+(ok?'ok':'bad');p.textContent=ok?'Postgres connected':'Postgres offline'}
+async function view(name,params={}){
+  const res=await api(`/api/view/${name}?${new URLSearchParams(params)}`);
+  pill(true);$('#sqltext').innerHTML=hl(res.sql);
+  $('#sqlmeta').textContent=`${res.rows.length} row${res.rows.length===1?'':'s'} in ${res.ms} ms`;
+  S.toLab=res.lab_sql;return res;
+}
+function offline(e){
+  pill(false);
+  $('#main').innerHTML=`<div class="offline"><h1>The database is not connected</h1><p>${esc(e.message)}</p><p>Check that Postgres is running, then restart this server:</p><pre>brew services list\ncreatedb shopflow\ngo run ./cmd/server</pre></div>`;
+}
+function table(res,raw){
+  if(!res.columns.length)return '';
+  const head=res.columns.map(c=>`<th>${esc(c)}</th>`).join('');
+  const body=res.rows.map(r=>'<tr>'+r.map((v,i)=>{
+    const c=res.columns[i];
+    if(v===null)return '<td class="nul">NULL</td>';
+    if(!raw&&/_cents$/.test(c))return `<td class="num">${money(v)}</td>`;
+    return `<td${typeof v==='number'?' class="num"':''}>${esc(v)}</td>`;
+  }).join('')+'</tr>').join('');
+  return `<div class="scroll"><table class="tbl"><thead><tr>${head}</tr></thead><tbody>${body}</tbody></table></div>`;
+}
+const rowObj=(res,r)=>Object.fromEntries(res.columns.map((c,i)=>[c,r[i]]));
 
-const money = (cents, currency) =>
-  new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: currency || 'USD'
-  }).format(cents / 100);
-
-
-const escapeHTML = (s) =>
-  String(s).replace(/[&<>"']/g, (c) =>
-    ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;'
-    }[c])
-  );
-
-
-async function loadCategories() {
-
-  try {
-
-    const res = await fetch('/api/categories');
-    const data = await res.json();
-
-    for (const c of data.categories) {
-
-      const opt = document.createElement('option');
-
-      opt.value = c;
-
-      opt.textContent =
-        c.charAt(0).toUpperCase() + c.slice(1);
-
-      els.category.append(opt);
-    }
-
-  } catch (err) {
-
-    console.error('categories failed', err);
-
-  }
+/* ---------- Shop ---------- */
+async function shop(){
+  if(!S.cats){try{S.cats=(await api('/api/view/categories')).rows}catch(e){return offline(e)}}
+  $('#main').innerHTML=`<h1>Coffee and gear</h1><p class="muted">Every card is a row from your database. Change a filter and watch the SQL change.</p>
+  <div class="bar"><input id="q" type="search" placeholder="Search name or description" value="${esc(S.q)}" aria-label="Search products">
+  <span id="chips" role="group" aria-label="Category"></span>
+  <label><input id="stock" type="checkbox" ${S.stock?'checked':''}> In stock only</label></div>
+  <div id="grid" class="grid" aria-live="polite"></div>`;
+  chips();
+  let t;$('#q').oninput=e=>{S.q=e.target.value;clearTimeout(t);t=setTimeout(products,250)};
+  $('#stock').onchange=e=>{S.stock=e.target.checked;products()};
+  $('#chips').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.cat=b.dataset.c;chips();products()};
+  $('#grid').onclick=e=>{const b=e.target.closest('.card');if(b)detail(b.dataset.slug)};
+  products();
+}
+function chips(){
+  const all=[['','All'],...S.cats];
+  $('#chips').innerHTML=all.map(([s,n])=>`<button class="chip" data-c="${esc(s)}" aria-pressed="${S.cat===s}">${esc(n)}</button>`).join(' ');
+}
+async function products(){
+  const p={};if(S.cat)p.category=S.cat;if(S.q.trim())p.q=S.q;if(S.stock)p.in_stock='true';
+  try{
+    const res=await view('products',p);
+    $('#grid').innerHTML=res.rows.length?res.rows.map(r=>{
+      const o=rowObj(res,r),n=Number(o.total_stock);
+      const price=o.from_price_cents===null?'No price yet':(o.from_price_cents===o.to_price_cents?money(o.from_price_cents):'From '+money(o.from_price_cents));
+      const [cls,txt]=n===0?['out','Sold out']:n<10?['low',`Only ${n} left`]:['','In stock'];
+      return `<button class="card" data-slug="${esc(o.slug)}"><span class="pic"><img src="${esc(o.image_url||'')}" alt=""></span><span class="cname">${esc(o.name)}</span><span class="ccat">${esc(o.category||'No category')}</span><span class="crow"><b>${price}</b><span class="stk ${cls}">${txt}</span></span></button>`;
+    }).join(''):'<p class="empty">No products match. Clear the search or the filters.</p>';
+  }catch(e){offline(e)}
+}
+async function detail(slug){
+  try{
+    const res=await view('product',{slug});
+    const first=rowObj(res,res.rows[0]||[]);
+    const sub={columns:res.columns.slice(2),rows:res.rows.map(r=>r.slice(2))};
+    $('#dlgbody').innerHTML=`<h1>${esc(first.name||slug)}</h1><p class="muted">${esc(first.description||'')}</p>${table(sub)}<p class="note">Price and stock live on the variant, so one product can have several sizes.</p>`;
+    $('#dlg').showModal();
+  }catch(e){offline(e)}
 }
 
-
-async function loadProducts() {
-
-  const params = new URLSearchParams();
-
-  if (els.q.value.trim()) {
-    params.set('q', els.q.value.trim());
-  }
-
-  if (els.category.value) {
-    params.set('category', els.category.value);
-  }
-
-  if (els.inStock.checked) {
-    params.set('in_stock', 'true');
-  }
-
-  els.status.textContent = 'Loading...';
-
-  try {
-
-    const res =
-      await fetch('/api/products?' + params);
-
-    if (!res.ok) {
-
-      const body =
-        await res.json().catch(() => ({}));
-
-      throw new Error(
-        body.error?.message ||
-        `server said ${res.status}`
-      );
-    }
-
-    const data = await res.json();
-
-    render(data.products);
-
-    els.status.textContent =
-      `${data.count} product${data.count === 1 ? '' : 's'}`;
-
-  } catch (err) {
-
-    els.grid.innerHTML = '';
-
-    els.status.innerHTML =
-      `<div class="error">
-        Could not load products:
-        ${escapeHTML(err.message)}
-      </div>`;
-  }
+/* ---------- Cart, Orders, Reports ---------- */
+async function cart(){
+  try{
+    const res=await view('cart');
+    const total=res.rows.reduce((a,r)=>a+Number(r[4]),0);
+    $('#main').innerHTML=`<h1>Your cart</h1><p class="muted">The demo shopper's open cart.</p>${table(res)}<p class="total">Subtotal <b>${money(total)}</b></p><p class="note">The cart stores only the variant and a quantity. The price is looked up live from product_variants, so a price change shows up here straight away.</p>`;
+  }catch(e){offline(e)}
+}
+async function orders(){
+  try{
+    const res=await view('orders');
+    $('#main').innerHTML=`<h1>Orders</h1><p class="muted">One row per order line.</p>${table(res)}<p class="note">These prices come from order_items, a copy made at purchase. Changing the catalog later never changes a past order.</p>`;
+  }catch(e){offline(e)}
+}
+const REPORTS=[['low-stock','Low stock'],['best-sellers','Best sellers'],['revenue','Revenue by day']];
+async function reports(){
+  $('#main').innerHTML=`<h1>Reports</h1><div class="bar" role="group" aria-label="Report">${REPORTS.map(([k,n])=>`<button class="chip" data-r="${k}" aria-pressed="${S.report===k}">${n}</button>`).join(' ')}</div><div id="rep"></div>`;
+  $('.bar').onclick=e=>{const b=e.target.closest('button');if(!b)return;S.report=b.dataset.r;reports()};
+  try{$('#rep').innerHTML=table(await view(S.report))}catch(e){offline(e)}
 }
 
-
-function render(products) {
-
-  if (!products.length) {
-
-    els.grid.innerHTML = `
-      <div class="empty">
-        Nothing matches your search.
-      </div>
-    `;
-
-    return;
-  }
-
-
-  els.grid.innerHTML = products.map((p) => `
-
-    <article class="card">
-
-      <div class="image-wrap">
-
-        <img
-          src="${escapeHTML(p.image_url)}"
-          alt="${escapeHTML(p.name)}"
-          loading="lazy"
-          onerror="this.style.visibility='hidden'"
-        >
-
-      </div>
-
-
-      <div class="body">
-
-        <div class="cat">
-          ${escapeHTML(p.category)}
-        </div>
-
-        <h2>
-          ${escapeHTML(p.name)}
-        </h2>
-
-        <p>
-          ${escapeHTML(p.description)}
-        </p>
-
-        <div class="row">
-
-          <span class="price">
-            ${money(p.price_cents, p.currency)}
-          </span>
-
-          <span class="stock ${p.stock > 0 ? '' : 'out'}">
-            ${
-              p.stock > 0
-                ? p.stock + ' in stock'
-                : 'Sold out'
-            }
-          </span>
-
-        </div>
-
-      </div>
-
-    </article>
-
-  `).join('');
+/* ---------- SQL Lab ---------- */
+const TASKS=[
+ ['List every product name with its slug.','SELECT ... FROM products'],
+ ['Show variants that cost more than $15, cheapest first.','WHERE price_cents > 1500 ORDER BY price_cents'],
+ ['Which variants are sold out?','stock = 0'],
+ ['How many variants does each product have?','JOIN products and product_variants, then GROUP BY'],
+ ['Add a category called Merch.','INSERT INTO categories (slug, name) VALUES (...)'],
+ ['Raise the kettle price by 10%.','UPDATE ... SET price_cents = ... WHERE sku = ...'],
+ ['Next to each order line, show the catalog price today.','JOIN order_items to product_variants on variant_id'],
+ ['Find total revenue per category.','order_items, product_variants, products, categories'],
+ ['Set a variant stock to -5. Read the error.','UPDATE product_variants SET stock = -5 ...'],
+ ['Time a lookup by sku.','EXPLAIN ANALYZE SELECT ... WHERE sku = ...']
+];
+async function lab(){
+  $('#main').innerHTML=`<h1>SQL Lab</h1><p class="muted">Write SQL against your real shopflow database. One statement at a time.</p>
+  <div class="lab"><div class="side"><h2>Tables</h2><div id="tables"><span class="muted">Loading...</span></div>
+  <h2 style="margin-top:16px">Practice</h2><ol id="tasks">${TASKS.map((t,i)=>`<li><button data-i="${i}" type="button">${esc(t[0])}</button></li>`).join('')}</ol></div>
+  <section><textarea id="ed" spellcheck="false" aria-label="SQL editor"></textarea>
+  <div class="ctl"><button id="run" class="pri" type="button">Run</button>
+  <label><input id="keep" type="checkbox"> Keep my changes</label>
+  <button id="reset" class="ghost" type="button">Reset data</button>
+  <span class="hint">Ctrl or Cmd + Enter to run. Changes are undone unless Keep my changes is on.</span></div>
+  <div id="out" aria-live="polite"></div></section></div>`;
+  const ed=$('#ed');ed.value=S.lab;ed.oninput=()=>S.lab=ed.value;
+  ed.onkeydown=e=>{if((e.ctrlKey||e.metaKey)&&e.key==='Enter')runSQL()};
+  $('#run').onclick=runSQL;$('#reset').onclick=resetData;
+  $('#tasks').onclick=e=>{const b=e.target.closest('button');if(!b)return;const t=TASKS[b.dataset.i];
+    ed.value=S.lab=`-- ${t[0]}\n-- Hint: ${t[1]}\n`;ed.focus();ed.setSelectionRange(ed.value.length,ed.value.length)};
+  try{
+    const res=await api('/api/view/schema');pill(true);
+    const by={};res.rows.forEach(([t,c,d])=>(by[t]=by[t]||[]).push([c,d]));
+    $('#tables').innerHTML=Object.entries(by).map(([t,cols])=>`<details><summary>${esc(t)}</summary><ul>${cols.map(([c,d])=>`<li class="col">${esc(c)} ${esc(d)}</li>`).join('')}</ul><button class="ghost" data-t="${esc(t)}" type="button" style="font-size:.8rem;padding:2px 8px">Select rows</button></details>`).join('');
+    $('#tables').onclick=e=>{const b=e.target.closest('[data-t]');if(b){ed.value=S.lab=`SELECT *\nFROM ${b.dataset.t}\nLIMIT 10;`;runSQL()}};
+  }catch(e){pill(false);$('#tables').textContent=e.message}
+}
+async function runSQL(){
+  const out=$('#out');out.innerHTML='<p class="muted">Running...</p>';
+  try{
+    const j=await api('/api/sql',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql:$('#ed').value,commit:$('#keep').checked})});
+    if(typeof j.error==='string'){out.innerHTML=`<div class="err" role="alert"><b>Postgres says</b><pre>${esc(j.error)}</pre></div>`;return}
+    const n=j.columns.length?j.rows.length:j.affected;
+    const info=j.columns.length?`${n} row${n===1?'':'s'}${j.truncated?' (first 200 shown)':''}`:`${n} row${n===1?'':'s'} changed`;
+    out.innerHTML=`<p class="muted">${info} in ${j.ms} ms</p>${j.note?`<p class="note2">${esc(j.note)}</p>`:''}${table(j,true)}`;
+  }catch(e){out.innerHTML=`<div class="err" role="alert">${esc(e.message)}</div>`}
+}
+async function resetData(){
+  if(!confirm('Reload every table from schema.sql and seed.sql? Changes you saved will be lost.'))return;
+  try{await api('/api/reset',{method:'POST'});$('#out').innerHTML='<p class="note2">Data reset to the starting set.</p>'}
+  catch(e){$('#out').innerHTML=`<div class="err" role="alert">${esc(e.message)}</div>`}
 }
 
-
-let timer;
-
-const debounced = () => {
-
-  clearTimeout(timer);
-
-  timer = setTimeout(loadProducts, 250);
-
-};
-
-
-els.q.addEventListener('input', debounced);
-
-els.category.addEventListener(
-  'change',
-  loadProducts
-);
-
-els.inStock.addEventListener(
-  'change',
-  loadProducts
-);
-
-
-loadCategories();
-
-loadProducts();
-
+/* ---------- Routing ---------- */
+const PAGES={shop,cart,orders,reports,lab};
+function go(tab){
+  S.tab=tab;document.body.classList.toggle('lab-mode',tab==='lab');
+  document.querySelectorAll('#nav button').forEach(b=>{
+    if(b.dataset.tab===tab)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');
+  });
+  PAGES[tab]();
+}
+$('#nav').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.tab)};
+$('#tolab').onclick=()=>{if(S.toLab){S.lab=S.toLab+';'}go('lab')};
+$('#dlgclose').onclick=()=>$('#dlg').close();
+$('#dlg').addEventListener('close',()=>{if(S.tab==='shop')products()});
+go('shop');
 </script>
-
 </body>
 </html>
