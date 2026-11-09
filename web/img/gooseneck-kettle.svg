@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" width="600" height="600" role="img" aria-label="Gooseneck Kettle">
+  <rect width="600" height="600" fill="#374151"/>
+  <circle cx="300" cy="300" r="215" fill="#ffffff" opacity="0.07"/>
+  <circle cx="300" cy="300" r="150" fill="#ffffff" opacity="0.07"/>
+  <text x="300" y="300" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="44" font-weight="600" fill="#ffffff"><tspan x="300" y="274">Gooseneck</tspan><tspan x="300" y="326">Kettle</tspan></text>
+</svg>
