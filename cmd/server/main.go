@@ -20,11 +20,22 @@ import (
 	"shopflow/internal/lab"
 )
 
-func main() {
-	addr := os.Getenv("SHOPFLOW_ADDR")
-	if addr == "" {
-		addr = "127.0.0.1:8080" // localhost only: the SQL Lab runs real SQL
+// listenAddr decides where the server binds.
+//  1. SHOPFLOW_ADDR wins if set (explicit override).
+//  2. PORT is set by hosts like Railway; bind all interfaces on that port.
+//  3. Otherwise localhost only, because the SQL Lab runs real SQL.
+func listenAddr() string {
+	if a := os.Getenv("SHOPFLOW_ADDR"); a != "" {
+		return a
 	}
+	if p := os.Getenv("PORT"); p != "" {
+		return ":" + p
+	}
+	return "127.0.0.1:8080"
+}
+
+func main() {
+	addr := listenAddr()
 
 	// Build the store, fill it with sample products.
 	// In Stage 3 these two lines become a Postgres connection and nothing
@@ -45,7 +56,14 @@ func main() {
 
 	// Mount the API, then the static site at the root.
 	mux := http.NewServeMux()
-	lab.Register(mux, db)
+
+	// The SQL Lab runs arbitrary SQL, so it is only mounted when explicitly
+	// enabled. Never set SHOPFLOW_LAB=1 on a public deployment.
+	if os.Getenv("SHOPFLOW_LAB") == "1" {
+		lab.Register(mux, db)
+		log.Println("SQL Lab ENABLED (local use only)")
+	}
+
 	mux.Handle("/api/", catalog.Handler{Store: store}.Routes())
 	mux.Handle("/", http.FileServer(http.Dir("web")))
 
@@ -62,9 +80,9 @@ func main() {
 		IdleTimeout:       60 * time.Second,
 	}
 
-	// Graceful shutdown: on Ctrl-C, stop accepting new requests but let the
-	// ones already in flight finish. A customer mid-checkout should not have
-	// the connection cut because you deployed.
+	// Graceful shutdown: on Ctrl-C or SIGTERM, stop accepting new requests but
+	// let the ones already in flight finish. A customer mid-checkout should not
+	// have the connection cut because you deployed.
 	shutdownDone := make(chan struct{})
 	go func() {
 		sigint := make(chan os.Signal, 1)
@@ -81,7 +99,7 @@ func main() {
 		close(shutdownDone)
 	}()
 
-	log.Printf("ShopFlow listening on http://%s", addr)
+	log.Printf("ShopFlow listening on %s", addr)
 
 	// ListenAndServe blocks until the server stops. It returns ErrServerClosed
 	// on a clean shutdown, which is not a failure.
