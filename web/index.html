@@ -2,13 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ShopFlow</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
 :root{--paper:#EDF0EA;--card:#F9FBF7;--ink:#11251F;--muted:#586A64;--line:#CAD3CB;--saffron:#F2B632;--leaf:#2F6B4F;--bad:#A8381F;--code:#E9F1EA;--mono:"JetBrains Mono",ui-monospace,Menlo,monospace}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 *{box-sizing:border-box}
 body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 "Bricolage Grotesque",system-ui,sans-serif}
 h1{font-size:1.9rem;line-height:1.15;margin:0 0 6px;font-weight:800;letter-spacing:-.01em}
@@ -18,8 +19,8 @@ button,input,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
 .muted,.hint{color:var(--muted)}
-header{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line)}
-.top{max-width:1280px;margin:auto;padding:12px 24px;display:flex;align-items:center;gap:28px;flex-wrap:wrap}
+header{position:sticky;top:0;z-index:5;background:var(--paper);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top{max-width:1280px;margin:auto;padding:12px max(24px,env(safe-area-inset-right,0px)) 12px max(24px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:28px;flex-wrap:wrap}
 .logo{font-weight:800;font-size:1.4rem;letter-spacing:-.02em;display:flex;align-items:center;gap:8px}
 .logo svg{width:26px;height:26px}
 nav{display:flex;gap:4px;flex:1;flex-wrap:wrap}
@@ -28,7 +29,7 @@ nav button[aria-current=page]{color:var(--ink);border-bottom-color:var(--saffron
 .pill{font-size:.85rem;color:var(--muted);display:flex;align-items:center;gap:6px}
 .pill:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--line)}
 .pill.ok:before{background:var(--leaf)}.pill.bad:before{background:var(--bad)}
-.wrap{max-width:1280px;margin:auto;padding:24px;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
+.wrap{max-width:1280px;margin:auto;padding:24px max(24px,env(safe-area-inset-right,0px)) max(24px,env(safe-area-inset-bottom,0px)) max(24px,env(safe-area-inset-left,0px));display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:28px;align-items:start}
 .lab-mode .wrap{grid-template-columns:minmax(0,1fr)}
 .lab-mode #aside{display:none}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0 18px}
@@ -37,10 +38,10 @@ nav button[aria-current=page]{color:var(--ink);border-bottom-color:var(--saffron
 .chip[aria-pressed=true]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:16px}
 .card{display:flex;flex-direction:column;gap:2px;text-align:left;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 10px 14px}
-.card:hover{border-color:var(--ink)}
+@media (hover:hover){.card:hover{border-color:var(--ink)}}
 .pic{display:grid;place-items:center;height:150px;background:#E0E8DD;border-radius:8px;margin-bottom:8px}
 .pic img{max-width:70%;max-height:70%}
-.cname{font-weight:600;font-size:1.05rem}.ccat{font-size:.88rem;color:var(--muted)}
+.cname{font-weight:600;font-size:1.05rem;overflow-wrap:anywhere}.ccat{font-size:.88rem;color:var(--muted)}
 .crow{display:flex;justify-content:space-between;align-items:baseline;margin-top:8px}
 .stk{font-size:.85rem;color:var(--leaf)}.stk.low{color:#8A5A00}.stk.out{color:var(--bad)}
 .scroll{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:12px}
@@ -74,9 +75,61 @@ textarea#ed{width:100%;min-height:190px;background:var(--ink);color:var(--code);
 .hint{font-size:.85rem}
 .err{background:#F6E3DD;border:1px solid #DDA796;border-radius:12px;padding:12px 14px;margin-top:10px}
 .note2{background:#FBF1D4;border-radius:10px;padding:8px 12px;font-size:.92rem}
-dialog{border:0;border-radius:16px;padding:24px;max-width:680px;width:92vw;background:var(--paper);color:var(--ink)}
+dialog{border:0;border-radius:16px;padding:24px;max-width:680px;width:92vw;max-height:90vh;max-height:90dvh;overflow:auto;background:var(--paper);color:var(--ink)}
 dialog::backdrop{background:rgba(17,37,31,.5)}
-@media (max-width:1000px){.wrap,.lab{grid-template-columns:minmax(0,1fr)}#aside .box{position:static}}
+/* Small laptops: narrower SQL panel */
+@media (max-width:1180px){.wrap{grid-template-columns:minmax(0,1fr) 320px;gap:22px}}
+
+/* Tablets: single column. The SQL panel drops below the page and the SQL Lab
+   editor moves above its table list so you can type without scrolling. */
+@media (max-width:1000px){
+  .wrap,.lab{grid-template-columns:minmax(0,1fr)}
+  #aside .box{position:static}
+  .sql{max-height:40vh}
+  .lab section{order:-1}
+}
+
+/* Phones */
+@media (max-width:700px){
+  h1{font-size:1.5rem}
+  .top{padding:10px max(14px,env(safe-area-inset-right,0px)) 6px max(14px,env(safe-area-inset-left,0px));gap:4px 12px}
+  .logo{font-size:1.2rem}
+  .pill{margin-left:auto}
+  /* Tabs get their own row and scroll sideways instead of wrapping into a tall header. */
+  nav{order:3;flex:1 0 100%;flex-wrap:nowrap;gap:0;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav button{flex:0 0 auto;white-space:nowrap;padding:8px 14px}
+  .wrap{padding:16px max(14px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));gap:20px}
+  .bar{gap:8px;margin:12px 0 14px}
+  .bar input[type=search]{flex:1 1 100%;min-width:0;font-size:16px}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .card{padding:8px 8px 12px}
+  .pic{height:112px}
+  .cname{font-size:.98rem}
+  .crow{flex-wrap:wrap;gap:2px 8px}
+  .tbl{font-size:.85rem}
+  .tbl th,.tbl td{padding:7px 9px}
+  .lab{gap:16px}
+  .side{padding:12px}
+  /* 16px stops iOS Safari from zooming the page when the editor is focused. */
+  textarea#ed{font-size:16px;min-height:170px;padding:12px}
+  .ctl{gap:10px 14px}
+  #aside .box{padding:14px}
+  dialog{padding:18px;border-radius:14px}
+}
+
+/* Very narrow phones: one product per row */
+@media (max-width:340px){.grid{grid-template-columns:minmax(0,1fr)}}
+
+/* Touch screens: finger-sized targets */
+@media (pointer:coarse){
+  nav button,.pri,.ghost{min-height:44px}
+  .chip{min-height:40px}
+  .side ol button{min-height:40px}
+  .side summary{padding:8px 0}
+  input[type=checkbox]{width:20px;height:20px}
+  .ctl label,.bar label{display:inline-flex;align-items:center;gap:8px;min-height:40px}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
