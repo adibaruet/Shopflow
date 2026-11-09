@@ -2,28 +2,91 @@
 
 **A database-driven coffee e-commerce application built with Go and PostgreSQL.**
 
-ShopFlow is a full-stack e-commerce project for browsing coffee, equipment, and supplies. It features a PostgreSQL-powered storefront, dynamic product filtering, inventory information, and an integrated SQL Lab that displays the SQL queries behind the storefront.
+ShopFlow is a full-stack coffee storefront and backend engineering project designed to demonstrate REST API development, relational database design, SQL query execution, and safe database exploration.
+
+The application lets users browse coffee, equipment, grinders, and accessories through a dynamic storefront. PostgreSQL powers the product views, category navigation, inventory information, and order-related reporting. An integrated SQL Lab allows developers to inspect the SQL behind the storefront and experiment with database queries.
+
+**Live Demo:** https://shopflow-production-3586.up.railway.app/
+
+**Source Code:** https://github.com/adibaruet/Shopflow
+
+---
 
 ## Features
 
-- **Product Storefront:** Browse coffee, equipment, grinders, and accessories.
-- **Dynamic Filtering:** Filter products by category and stock availability.
-- **PostgreSQL Integration:** Retrieve product information directly from a relational database.
-- **Inventory Management:** Display product availability and stock quantities.
-- **SQL Lab:** Inspect and execute SQL queries used by the application.
-- **REST API:** Go-based HTTP API for catalog operations.
-- **HTTP Middleware:** Request logging, error recovery, and server timeouts.
+### 1. Product Storefront
+- Browse coffee, brewing equipment, grinders, and accessories.
+- View individual product details and available variants.
+- Explore product prices, stock quantities, and availability.
+- Search products by name or description.
+
+### 2. Dynamic Product Filtering
+- Filter products by category.
+- Search using PostgreSQL `ILIKE`.
+- Filter products based on stock availability.
+- Display product price ranges and available variants.
+
+### 3. PostgreSQL Database Integration
+- Relational database schema for products, categories, variants, carts, and orders.
+- Foreign keys and constraints to maintain data integrity.
+- Indexes for frequently queried fields.
+- Parameterized SQL queries for dynamic filtering.
+- Price snapshots in order items to preserve historical purchase information.
+
+### 4. Interactive SQL Lab
+An integrated environment for exploring and executing SQL queries.
+
+- Inspect the SQL statements powering storefront views.
+- Execute custom SQL statements against PostgreSQL.
+- View query results, affected rows, and execution time.
+- Automatically roll back changes by default.
+- Optionally commit changes using the **Keep my changes** option.
+- Apply a PostgreSQL statement timeout of 5 seconds.
+- Limit displayed query results to 200 rows.
+
+The arbitrary SQL execution and database reset endpoints are disabled on the public deployment. The SQL Lab's full execution functionality is intended for local development.
+
+### 5. Go REST API
+- HTTP endpoints for catalog operations.
+- Store interface to separate HTTP handlers from storage implementation.
+- JSON request validation and structured error responses.
+- Logging and panic-recovery middleware.
+
+### 6. HTTP Server Reliability
+- Request logging and panic recovery.
+- Request body size limit of 1 MiB.
+- Strict JSON validation.
+- HTTP read, write, and idle timeouts.
+- Graceful shutdown to allow in-flight requests to finish.
+
+---
 
 ## Tech Stack
 
 | Technology | Purpose |
 |---|---|
-| Go (Golang) | Backend development |
+| Go | Backend development and REST API |
 | PostgreSQL | Relational database |
+| pgx | PostgreSQL connectivity |
+| SQL | Database queries and reporting |
 | HTML | Frontend structure |
-| CSS | Frontend styling |
+| CSS | Styling and layout |
 | JavaScript | Frontend interactions |
-| SQL | Database queries and operations |
+
+---
+
+## Architecture
+
+ShopFlow separates the HTTP API, database operations, and frontend into distinct components.
+
+- **Frontend:** HTML, CSS, and JavaScript provide the product storefront and SQL exploration interface.
+- **Backend:** Go handles HTTP requests, catalog operations, middleware, and server lifecycle management.
+- **Database:** PostgreSQL stores the relational e-commerce data and powers storefront views and SQL exploration.
+- **Database driver:** pgx provides PostgreSQL connectivity.
+
+The catalog API uses a `Store` interface, allowing the storage implementation to be changed without rewriting HTTP handlers.
+
+---
 
 ## Project Structure
 
@@ -58,41 +121,111 @@ Shopflow/
 │   ├── index.html
 │   └── img/
 │
+├── COURSE.md
+├── STAGE-2.md
 ├── go.mod
 ├── go.sum
 └── README.md
 ```
 
-## Database
+---
 
-ShopFlow uses PostgreSQL to store and retrieve product information.
+## Database Design
 
-The database includes relational tables such as:
+The PostgreSQL database uses a relational schema to represent the main components of an e-commerce application.
 
-- `products`
-- `categories`
-- `product_variants`
-- `product_images`
+| Table | Responsibility |
+|---|---|
+| `users` | Customer account information |
+| `addresses` | Customer address book |
+| `categories` | Product categories and subcategories |
+| `products` | Product descriptions and information |
+| `product_variants` | Product SKUs, prices, sizes, and stock |
+| `product_images` | Product image references |
+| `carts` | Shopping cart records |
+| `cart_items` | Products and quantities in carts |
+| `orders` | Order records, totals, and status |
+| `order_items` | Historical product and price snapshots |
 
-The storefront uses SQL operations including:
+### Important Database Design Decisions
 
-- JOIN
-- GROUP BY
+- **Product variants:** Prices and stock are stored at the variant level, allowing one product to have multiple sizes or configurations.
+- **Data integrity:** Foreign keys, unique constraints, check constraints, and indexes protect relational consistency.
+- **Historical price snapshots:** Order items preserve product names, SKUs, variant names, and unit prices at the time of purchase.
+- **Generated columns:** PostgreSQL calculates order totals and line totals automatically.
+- **Order numbering:** A database sequence generates human-readable order numbers.
+- **Category hierarchy:** Self-referencing category relationships support nested categories.
+
+### SQL Concepts Demonstrated
+
+- INNER JOIN and LEFT JOIN
+- GROUP BY and HAVING
 - ORDER BY
-- MIN()
-- MAX()
-- SUM()
-- COUNT()
+- MIN(), MAX(), SUM(), COUNT()
 - COALESCE()
+- Aggregate functions
+- Subqueries
+- Parameterized queries
+- Database constraints and indexes
+- Transactions and rollback
+
+---
+
+## Example SQL Query
+
+The following query demonstrates how product information, category details, variant pricing, stock availability, and product images can be retrieved together.
+
+```sql
+WITH variant_summary AS (
+    SELECT
+        product_id,
+        MIN(price_cents) AS from_price_cents,
+        MAX(price_cents) AS to_price_cents,
+        SUM(stock) AS total_stock,
+        COUNT(*) AS variants
+    FROM product_variants
+    WHERE is_active
+    GROUP BY product_id
+),
+image_summary AS (
+    SELECT
+        product_id,
+        MIN(url) AS image_url
+    FROM product_images
+    GROUP BY product_id
+)
+SELECT
+    p.slug,
+    p.name,
+    c.name AS category,
+    COALESCE(v.from_price_cents, 0) AS from_price_cents,
+    COALESCE(v.to_price_cents, 0) AS to_price_cents,
+    COALESCE(v.total_stock, 0) AS total_stock,
+    COALESCE(v.variants, 0) AS variants,
+    i.image_url
+FROM products p
+LEFT JOIN categories c
+    ON c.id = p.category_id
+LEFT JOIN variant_summary v
+    ON v.product_id = p.id
+LEFT JOIN image_summary i
+    ON i.product_id = p.id
+WHERE p.is_active
+ORDER BY p.name;
+```
+
+The separate aggregation steps prevent multiple product images from multiplying variant rows and incorrectly inflating stock totals.
+
+---
 
 ## Getting Started
 
 ### Prerequisites
 
-Make sure you have installed:
+Install the following:
 
 - Go
-- PostgreSQL
+- PostgreSQL 14 or later
 - Git
 
 ### 1. Clone the repository
@@ -113,8 +246,10 @@ go mod download
 On macOS with Homebrew:
 
 ```bash
-brew services start postgresql@16
+brew services start postgresql@17
 ```
+
+Adjust the service name if you use a different PostgreSQL version.
 
 ### 4. Create the database
 
@@ -122,7 +257,19 @@ brew services start postgresql@16
 createdb shopflow
 ```
 
-### 5. Initialize the database
+### 5. Configure the database connection
+
+The application accepts a PostgreSQL connection string through `DATABASE_URL`.
+
+Example:
+
+```bash
+export DATABASE_URL="postgres://postgres:password@localhost:5432/shopflow?sslmode=disable"
+```
+
+Replace the username and password with your local PostgreSQL credentials.
+
+### 6. Initialize the database
 
 Run the schema:
 
@@ -136,65 +283,51 @@ Insert sample data:
 psql -d shopflow -f db/seed.sql
 ```
 
-### 6. Run the application
+**Note:** The schema script drops and recreates existing project tables. Only run it against a disposable development database, not a database containing real customer orders.
+
+### 7. Run the application
 
 ```bash
 go run ./cmd/server
 ```
 
-### 7. Open the application
+To enable the full SQL Lab locally:
+
+```bash
+SHOPFLOW_LAB=1 go run ./cmd/server
+```
+
+Do not enable arbitrary SQL execution on a public deployment.
+
+### 8. Open the application
 
 Visit:
 
 http://127.0.0.1:8080
 
-## Example SQL Query
+---
 
-The storefront retrieves product information using a query similar to:
+## Running Tests
 
-```sql
-SELECT
-    p.slug,
-    p.name,
-    c.name AS category,
-    MIN(v.price_cents) AS from_price_cents,
-    MAX(v.price_cents) AS to_price_cents,
-    COALESCE(SUM(v.stock), 0) AS total_stock,
-    COUNT(v.id) AS variants,
-    MIN(i.url) AS image_url
-FROM products p
-LEFT JOIN categories c
-    ON c.id = p.category_id
-LEFT JOIN product_variants v
-    ON v.product_id = p.id
-    AND v.is_active
-LEFT JOIN product_images i
-    ON i.product_id = p.id
-WHERE p.is_active
-GROUP BY p.id, p.slug, p.name, c.name
-ORDER BY p.name;
+Run the Go test suite:
+
+```bash
+go test ./...
 ```
 
-## Learning Objectives
-
-This project explores:
-
-- Backend development with Go.
-- REST API design and implementation.
-- Relational database design.
-- PostgreSQL integration.
-- SQL joins, aggregations, and filtering.
-- Dynamic frontend data rendering.
-- Database-backed application architecture.
+---
 
 ## Future Improvements
 
-- Complete shopping cart functionality.
-- Order placement and order history.
-- User authentication and authorization.
-- Automated testing for APIs and database operations.
-- Sales and inventory reporting.
-- Improved application security.
+- Connect the catalog API to persistent PostgreSQL storage.
+- Implement complete shopping cart operations.
+- Implement checkout and order placement workflows.
+- Add customer authentication and authorization.
+- Add API and database integration tests.
+- Introduce automated CI/CD using GitHub Actions.
+- Expand inventory and sales reporting.
+
+---
 
 ## Author
 
@@ -203,7 +336,7 @@ This project explores:
 B.Sc. in Electrical and Computer Engineering  
 Rajshahi University of Engineering & Technology (RUET)
 
-- GitHub: [@adibaruet](https://github.com/adibaruet)
+- GitHub: https://github.com/adibaruet
 
 ---
 
