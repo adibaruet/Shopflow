@@ -23,7 +23,7 @@ import (
 // listenAddr decides where the server binds.
 //  1. SHOPFLOW_ADDR wins if set (explicit override).
 //  2. PORT is set by hosts like Railway; bind all interfaces on that port.
-//  3. Otherwise localhost only, because the SQL Lab runs real SQL.
+//  3. Otherwise localhost only.
 func listenAddr() string {
 	if a := os.Getenv("SHOPFLOW_ADDR"); a != "" {
 		return a
@@ -32,6 +32,18 @@ func listenAddr() string {
 		return ":" + p
 	}
 	return "127.0.0.1:8080"
+}
+
+// blockLab hides the dangerous SQL Lab endpoints (arbitrary SQL and database
+// reset). The read-only storefront view route stays available.
+func blockLab(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/sql" || r.URL.Path == "/api/reset" {
+			http.NotFound(w, r)
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
 }
 
 func main() {
@@ -56,18 +68,20 @@ func main() {
 
 	// Mount the API, then the static site at the root.
 	mux := http.NewServeMux()
-
-	// The SQL Lab runs arbitrary SQL, so it is only mounted when explicitly
-	// enabled. Never set SHOPFLOW_LAB=1 on a public deployment.
-	if os.Getenv("SHOPFLOW_LAB") == "1" {
-		lab.Register(mux, db)
-		log.Println("SQL Lab ENABLED (local use only)")
-	}
-
+	lab.Register(mux, db)
 	mux.Handle("/api/", catalog.Handler{Store: store}.Routes())
 	mux.Handle("/", http.FileServer(http.Dir("web")))
 
-	handler := httpx.Chain(mux, httpx.Recoverer, httpx.Logger)
+	// The SQL Lab runs arbitrary SQL, so it is only reachable when explicitly
+	// enabled. Never set SHOPFLOW_LAB=1 on a public deployment.
+	var root http.Handler = mux
+	if os.Getenv("SHOPFLOW_LAB") == "1" {
+		log.Println("SQL Lab ENABLED (local use only)")
+	} else {
+		root = blockLab(mux)
+	}
+
+	handler := httpx.Chain(root, httpx.Recoverer, httpx.Logger)
 
 	// Always configure timeouts. http.ListenAndServe uses none, which means a
 	// single slow client can hold a connection open forever.
@@ -81,13 +95,12 @@ func main() {
 	}
 
 	// Graceful shutdown: on Ctrl-C or SIGTERM, stop accepting new requests but
-	// let the ones already in flight finish. A customer mid-checkout should not
-	// have the connection cut because you deployed.
+	// let the ones already in flight finish.
 	shutdownDone := make(chan struct{})
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, os.Interrupt, syscall.SIGTERM)
-		<-sigint // blocks this goroutine until a signal arrives
+		<-sigint
 
 		log.Println("shutting down...")
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -101,8 +114,6 @@ func main() {
 
 	log.Printf("ShopFlow listening on %s", addr)
 
-	// ListenAndServe blocks until the server stops. It returns ErrServerClosed
-	// on a clean shutdown, which is not a failure.
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("server error: %v", err)
 	}
