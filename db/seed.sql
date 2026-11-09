@@ -1,103 +1,95 @@
--- images
--- ---------------------------------------------------------------------------
--- The original eight products keep their individual Stage 1 SVGs.
--- New products temporarily reuse a category-specific image so no product
--- card points to a missing local asset. Add individual SVGs later if desired.
+-- ShopFlow seed data, expanded catalog
+-- Apply AFTER schema.sql:
+--   psql shopflow -f db/seed.sql
+--
+-- No hard-coded IDs: references are resolved by slug, SKU, or email.
+-- This seed creates 30 products across coffee, equipment, grinders, and supplies.
 
-INSERT INTO product_images (product_id, url, alt, position)
-SELECT
-  p.id,
-  CASE
-    WHEN p.slug IN (
-      'ethiopian-yirgacheffe', 'colombian-supremo', 'decaf-sumatra',
-      'gooseneck-kettle', 'burr-grinder', 'ceramic-dripper-v60',
-      'paper-filters-100', 'shop-mug'
-    ) THEN '/img/' || p.slug || '.svg'
-    WHEN c.slug = 'coffee' THEN '/img/ethiopian-yirgacheffe.svg'
-    WHEN c.slug = 'grinders' THEN '/img/burr-grinder.svg'
-    WHEN c.slug = 'equipment' THEN '/img/gooseneck-kettle.svg'
-    ELSE '/img/shop-mug.svg'
-  END,
-  p.name,
-  1
-FROM products p
-JOIN categories c ON c.id = p.category_id;
+BEGIN;
 
 -- ---------------------------------------------------------------------------
--- a customer
+-- categories
 -- ---------------------------------------------------------------------------
--- Demo credentials are for local/demo use only. Replace with a newly
--- generated bcrypt hash before using any real customer account.
 
-INSERT INTO users (email, password_hash, full_name) VALUES
-  ('tishad@example.com', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Tishad Ashef');
+INSERT INTO categories (slug, name, position) VALUES
+  ('coffee',    'Coffee',    1),
+  ('equipment', 'Equipment', 2),
+  ('supplies',  'Supplies',  3);
 
-INSERT INTO addresses
-  (user_id, label, recipient, line1, city, region, postal_code, country_code, phone)
+-- A nested category, to demonstrate the self-reference.
+INSERT INTO categories (slug, name, position, parent_id)
 VALUES (
-  (SELECT id FROM users WHERE email = 'tishad@example.com'),
-  'Home', 'Tishad Ashef', '12 Kazla Road', 'Rajshahi', 'Rajshahi',
-  '6204', 'BD', '+880000000000'
+  'grinders', 'Grinders', 1,
+  (SELECT id FROM categories WHERE slug = 'equipment')
 );
 
 -- ---------------------------------------------------------------------------
--- an open cart
+-- products
 -- ---------------------------------------------------------------------------
 
-INSERT INTO carts (user_id, session_token)
-VALUES (
-  (SELECT id FROM users WHERE email = 'tishad@example.com'),
-  'demo-session-token'
-);
+INSERT INTO products (slug, name, description, category_id) VALUES
+  -- Coffee
+  ('ethiopian-yirgacheffe', 'Ethiopian Yirgacheffe',
+   'Bright, floral single-origin beans. Washed, light roast.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
-INSERT INTO cart_items (cart_id, variant_id, quantity) VALUES
-  (
-    (SELECT id FROM carts WHERE session_token = 'demo-session-token'),
-    (SELECT id FROM product_variants WHERE sku = 'COF-COL-1KG'), 1
-  ),
-  (
-    (SELECT id FROM carts WHERE session_token = 'demo-session-token'),
-    (SELECT id FROM product_variants WHERE sku = 'SUP-FIL-100'), 2
-  );
+  ('colombian-supremo', 'Colombian Supremo',
+   'Balanced and nutty, the everyday cup. Medium roast.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
--- ---------------------------------------------------------------------------
--- one placed order, so there is history to protect
--- ---------------------------------------------------------------------------
--- 2 x Yirgacheffe 250g at 1850 = 3700
--- 1 x Ceramic Dripper V60       = 2400
--- subtotal                     = 6100
--- shipping                     =  500
--- tax (8%)                     =  488
--- total_cents                  = 7088 (computed by PostgreSQL)
+  ('decaf-sumatra', 'Decaf Sumatra',
+   'Full-bodied and earthy, no caffeine. Swiss water process.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
-INSERT INTO orders
-  (user_id, email, status, subtotal_cents, shipping_cents, tax_cents, shipping_address)
-VALUES (
-  (SELECT id FROM users WHERE email = 'tishad@example.com'),
-  'tishad@example.com',
-  'paid',
-  6100, 500, 488,
-  '{"recipient":"Tishad Ashef","line1":"12 Kazla Road","city":"Rajshahi",
-    "region":"Rajshahi","postal_code":"6204","country_code":"BD"}'::jsonb
-);
+  ('kenya-aa', 'Kenya AA',
+   'Juicy blackcurrant and citrus notes with a bright, clean finish.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
--- Snapshot catalog values at purchase time.
-INSERT INTO order_items
-  (order_id, variant_id, product_name, variant_name, sku, unit_price_cents, quantity)
-SELECT
-  (SELECT id FROM orders ORDER BY id DESC LIMIT 1),
-  v.id, p.name, v.name, v.sku, v.price_cents, 2
-FROM product_variants v
-JOIN products p ON p.id = v.product_id
-WHERE v.sku = 'COF-YIR-250';
+  ('brazil-santos', 'Brazil Santos',
+   'Smooth, low-acidity coffee with chocolate and roasted-nut notes.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
-INSERT INTO order_items
-  (order_id, variant_id, product_name, variant_name, sku, unit_price_cents, quantity)
-SELECT
-  (SELECT id FROM orders ORDER BY id DESC LIMIT 1),
-  v.id, p.name, v.name, v.sku, v.price_cents, 1
-FROM product_variants v
-JOIN products p ON p.id = v.product_id
-WHERE v.sku = 'EQP-V60-02';
+  ('guatemala-antigua', 'Guatemala Antigua',
+   'Medium-roast single origin with cocoa, caramel, and orange notes.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
 
-COMMIT;
+  ('costa-rica-tarrazu', 'Costa Rica Tarrazú',
+   'Clean, balanced coffee with honey sweetness and a crisp finish.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
+
+  ('house-espresso-blend', 'House Espresso Blend',
+   'A balanced espresso blend developed for milk drinks and espresso.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
+
+  ('rwanda-bourbon', 'Rwanda Bourbon',
+   'A sweet, delicate coffee with stone-fruit and floral notes.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
+
+  ('sumatra-mandheling', 'Sumatra Mandheling',
+   'Deep-bodied Indonesian coffee with earthy and spice notes.',
+   (SELECT id FROM categories WHERE slug = 'coffee')),
+
+  -- Equipment
+  ('gooseneck-kettle', 'Gooseneck Kettle',
+   '1L stainless steel kettle for precise pour control.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
+
+  ('ceramic-dripper-v60', 'Ceramic Dripper V60',
+   'Size 02 ceramic pour-over dripper for one to four cups.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
+
+  ('french-press-600', 'French Press 600ml',
+   'Glass and stainless-steel French press for full-bodied coffee.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
+
+  ('aeropress-coffee-maker', 'AeroPress Coffee Maker',
+   'Compact manual coffee maker for smooth, low-bitterness brews.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
+
+  ('stovetop-moka-pot', 'Stovetop Moka Pot',
+   'Six-cup aluminium stovetop brewer for rich, concentrated coffee.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
+
+  ('espresso-machine', 'Home Espresso Machine',
+   'Compact espresso machine for home brewing.',
+   (SELECT id FROM categories WHERE slug = 'equipment')),
