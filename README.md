@@ -299,12 +299,56 @@ SHOPFLOW_LAB=1 go run ./cmd/server
 
 Do not enable arbitrary SQL execution on a public deployment.
 
-### 8. Open the application
+## Deployment
 
-Visit:
+ShopFlow is deployed using Railway and Neon PostgreSQL.
 
-http://127.0.0.1:8080
+- **Application Hosting:** Railway
+- **Database Hosting:** Neon (serverless PostgreSQL)
+- **Database Connectivity:** Go with pgx
+- **Configuration:** Environment variables
 
+### Live Application
+
+https://shopflow-production-3586.up.railway.app/
+
+### Production Architecture
+
+```text
+           User Browser
+                |
+                v
+        Railway Deployment
+          (Go Application)
+                |
+                v
+          pgx Connection
+                |
+                v
+        Neon PostgreSQL
+        (Cloud Database)
+```
+
+### Environment Configuration
+
+The application uses the following environment variable:
+
+```env
+DATABASE_URL=your_neon_connection_string
+```
+
+Configure this variable in Railway's service variables. Use your Neon connection string and keep database credentials out of source control.
+
+### Run Locally (Optional)
+
+For local development, install Go and PostgreSQL, configure `DATABASE_URL` to point to your development database, initialize the schema and seed data, then run:
+
+```bash
+go mod download
+go run ./cmd/server
+```
+
+Open http://127.0.0.1:8080 to access the local development instance.
 ---
 
 ## Running Tests
